@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  upc:
+    image: node:18-alpine
+    ports:
+      - '3000:3000'
+    networks:
+      - upc-network
+    volumes:
+      - .:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    working_dir: /home/node/app/
+    command: sh -c "yarn install && yarn dev"
+    depends_on:
+      - rdbms
+    env_file:
+      - .env
+
+  rdbms:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=root_user
+      - POSTGRES_PASSWORD=dev-admin
+      - POSTGRES_DB=stella-admin-management
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - upc-network
+
+volumes:
+  data:
+    driver: local
+  node_modules:
+
+networks:
+  upc-network:
+    driver: bridge
+    attachable: true
